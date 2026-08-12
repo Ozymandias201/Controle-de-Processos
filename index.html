@@ -1002,6 +1002,7 @@ function renderizarPainel(DADOS){
       .sort((a, b) => a['Dias para fim da Vigência'] - b['Dias para fim da Vigência'])
       .map(v => `
       <tr>
+        td>${v['ID']}</td>
         <td>${v['Programa/Projeto']}</td>
         <td>${v['Instituição A']}</td>
         <td class="muted">${v['Instrumento'] || '—'}</td>
