@@ -196,7 +196,7 @@
   .section-head .hint{font-size:11.5px;color:var(--text-dim)}
 
   /* ---------------- kpi row ---------------- */
-  .kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+  .kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
   @media (max-width:1180px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
   @media (max-width:640px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
 
@@ -266,14 +266,19 @@
   .timeline-legend{display:flex;gap:18px;margin-top:18px;flex-wrap:wrap}
   .timeline-legend span{font-size:11px;color:var(--text-mid);display:flex;align-items:center}
   .tt{
-    position:absolute;bottom:100%;left:50%;transform:translate(-50%,-8px);
-    background:#1c2540;border:1px solid var(--line-strong);border-radius:8px;
-    padding:8px 10px;font-size:11px;line-height:1.4;white-space:normal;
-    width:max-content;max-width:min(320px, 90vw);
+    position:absolute;bottom:100%;left:50%;transform:translate(-50%,-10px);
+    background:#1c2540;border:1px solid var(--line-strong);border-radius:12px;
+    padding:12px 14px;font-size:12.5px;line-height:1.5;white-space:normal;
+    width:max-content;min-width:220px;max-width:min(340px, 80vw);
     box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .12s ease;z-index:20;
   }
   .timeline-dot:hover .tt{opacity:1}
-  .tt b{display:block;font-size:11.5px;margin-bottom:1px}
+  .tt-id{
+    display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.3px;
+    color:var(--text-dim);background:rgba(255,255,255,.08);border-radius:5px;
+    padding:2px 6px;margin-bottom:6px;
+  }
+  .tt b{display:block;font-size:13px;margin-bottom:2px}
 
   /* ---------------- ranking / bars ---------------- */
   .rank-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -291,6 +296,7 @@
   @media (max-width:900px){.trend-chart-row{grid-template-columns:1fr}}
   .trend-stack{display:flex;flex-direction:column;gap:14px}
   .trend-card{display:flex;flex-direction:column}
+  .chart-stack-full{display:flex;flex-direction:column;gap:14px}
   .trend-top{display:flex;align-items:center;gap:12px;margin-bottom:2px}
   .trend-avatar{
     width:38px;height:38px;border-radius:50%;flex:none;
@@ -320,6 +326,7 @@
   }
   .badge.vencido{background:rgba(251,113,133,.14);color:var(--danger)}
   .badge.vigente{background:rgba(52,211,153,.14);color:var(--ok)}
+  .badge.renovado{background:rgba(129,140,248,.16);color:#a5b4fc}
   .badge.concluido{background:rgba(99,102,241,.16);color:#a5b4fc}
   .badge.pendente{background:rgba(251,146,60,.14);color:var(--warn)}
   .days-neg{color:var(--danger);font-weight:600}
@@ -331,6 +338,7 @@
   .empty-row td{text-align:center;color:var(--text-dim);padding:26px 12px}
 
   footer{margin-top:36px;color:var(--text-dim);font-size:11px;text-align:center;padding-bottom:10px}
+
 </style>
 </head>
 <body>
@@ -427,6 +435,15 @@
           <div class="kpi-sub up" id="kpiVigentesSub">—</div>
         </div>
 
+        <div class="kpi" style="--kpi-a:#818cf8">
+          <div class="kpi-top">
+            <span class="kpi-label">Vigências renovadas</span>
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></div>
+          </div>
+          <div class="kpi-value num" id="kpiRenovados">—</div>
+          <div class="kpi-sub" id="kpiRenovadosSub">—</div>
+        </div>
+
         <div class="kpi" style="--kpi-a:var(--danger)">
           <div class="kpi-top">
             <span class="kpi-label">Vigências vencidas</span>
@@ -461,6 +478,7 @@
           <div class="donut-legend">
             <span><span class="dot" style="background:var(--ok)"></span>Vigente</span>
             <span><span class="dot" style="background:var(--danger)"></span>Vencido</span>
+            <span><span class="dot" style="background:#818cf8"></span>Renovado</span>
           </div>
         </div>
 
@@ -512,34 +530,16 @@
     </section>
 
     <section>
-      <div class="trend-chart-row">
-        <div class="trend-stack">
-          <div class="card trend-card">
-            <div class="trend-top">
-              <div class="trend-avatar" style="background:linear-gradient(135deg,var(--grad-blue-a),var(--grad-blue-b))">I</div>
-              <div>
-                <div class="trend-num num" id="trendInstituicoes">—</div>
-                <div class="trend-lbl">Instituições parceiras</div>
-              </div>
-            </div>
-            <div class="trend-spark"><canvas id="sparkAssinaturas"></canvas></div>
-          </div>
-          <div class="card trend-card">
-            <div class="trend-top">
-              <div class="trend-avatar" style="background:linear-gradient(135deg,var(--grad-violet-a),var(--grad-violet-b))">D</div>
-              <div>
-                <div class="trend-num num" id="trendDias">—</div>
-                <div class="trend-lbl">Dias restantes (média, vigentes)</div>
-              </div>
-            </div>
-            <div class="trend-spark"><canvas id="sparkVigencia"></canvas></div>
-          </div>
-        </div>
-
+      <div class="chart-stack-full">
         <div class="card big-chart">
-          <h3>Assinaturas por ano</h3>
-          <div class="card-sub">Quantidade de instrumentos assinados, por ano</div>
-          <div class="big-chart-canvas-wrap"><canvas id="chartAssinaturas"></canvas></div>
+          <h3>Processos abertos por ano</h3>
+          <div class="card-sub">Quantidade de processos abertos, por ano</div>
+          <div class="big-chart-canvas-wrap"><canvas id="chartProcessosAno"></canvas></div>
+        </div>
+        <div class="card big-chart">
+          <h3>Vigências a vencer por ano</h3>
+          <div class="card-sub">Quantidade de vigências que chegarão ao vencimento, por ano</div>
+          <div class="big-chart-canvas-wrap"><canvas id="chartVigenciasAno"></canvas></div>
         </div>
       </div>
     </section>
@@ -552,7 +552,7 @@
       <div class="card table-card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Programa/Projeto</th><th>Instituição</th><th>Instrumento</th><th>Venceu em</th><th>Dias vencido</th></tr></thead>
+            <thead><tr><th>ID</th><th>Programa/Projeto</th><th>Instituição</th><th>Instrumento</th><th>Venceu em</th><th>Dias vencido</th></tr></thead>
             <tbody id="tbodyVencidas"></tbody>
           </table>
         </div>
@@ -567,7 +567,7 @@
       <div class="card table-card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>ID</th><th>Programa/Projeto</th><th>Instituição</th><th>Instrumento</th><th>Status/Processo</th><th>Vigência</th><th>Status/Vigência</th></tr></thead>
+            <thead><tr><th>ID</th><th>Programa/Projeto</th><th>Instituição A</th><th>Instituição B</th><th>Instrumento</th><th>Status/Processo</th><th>Vigência</th><th>Status/Vigência</th></tr></thead>
             <tbody id="tbodyProcessos"></tbody>
           </table>
         </div>
@@ -595,7 +595,11 @@ const CONFIG = {
   atualizarAutomaticamenteMs: 5 * 60 * 1000 // 5 minutos
 };
 
-const DADOS_FALLBACK = {"total": 52, "concluidos": 26, "pendentes": 26, "vigentes": 20, "vencidos": 6, "programa": {"Rede da Memória Virtual Brasileira": 32, "Brasiliana Fotográfica": 15, "Hemeroteca Digital": 1, "Portal França Brasil": 1, "Biblioteca Digital Luso-Brasileira": 1, "imagineRio": 1, "MEC livros": 1}, "instrumento": {"Termo de Adesão": 22, "Acordo de Cooperação Técnica": 12, "Termo Aditivo": 5, "Convênio de Cooperação Técnica": 3, "Memorando de entendimento": 1}, "assinaturas_ano": {"2020": 1, "2022": 9, "2023": 4, "2024": 4, "2025": 7, "2026": 1}, "vencidas": [{"Programa/Projeto": "Hemeroteca Digital", "Instituição A": "Insituto Histórico e Geográfico de Santos", "Instrumento": "Termo Aditivo", "Vigência": "05/06/2026", "Dias para fim da Vigência": -60.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Instituto Musica Brasilis", "Instrumento": "Termo de Adesão", "Vigência": "10/03/2025", "Dias para fim da Vigência": -512.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Grupo Associado de Estudos e Pesquisas sobre a História da Educação Matemática - GHEMAT-Brasil", "Instrumento": "Termo de Adesão", "Vigência": "10/03/2025", "Dias para fim da Vigência": -512.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Museu Histórico Nacional", "Instrumento": "Termo de Adesão", "Vigência": "14/11/2025", "Dias para fim da Vigência": -263.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Arquivo Geral da Cidade do Rio de Janeiro", "Instrumento": "Termo de Adesão", "Vigência": "09/11/2025", "Dias para fim da Vigência": -268.0}, {"Programa/Projeto": "MEC livros", "Instituição A": "Fundação Biblioteca Nacional", "Instrumento": "Acordo de Cooperação Técnica", "Vigência": "01/06/2026", "Dias para fim da Vigência": -64.0}], "proximos": [{"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Núcleo de Pesquisa Semiótica da Amazônia – NUPS/UFRR ", "Instrumento": "Termo de Adesão", "Vigência": "20/08/2026", "Dias para fim da Vigência": 16.0}], "v_inicio_sim": 7, "v_alerta_sim": 7, "v_atraso_sim": 7, "instituicoes_unicas": 44, "dias_restantes_media": 484.4, "dias_restantes_min": 16.0, "dias_restantes_max": 1188.0, "vigencia_fim_ano": {"2025": 4, "2026": 3, "2027": 15, "2028": 1, "2029": 3}, "timeline": [{"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Instituto Moreira Salles", "Instrumento": "Acordo de Cooperação Técnica", "Vigência": "26/03/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 234.0}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Arquivo Nacional", "Instrumento": "Termo de Adesão", "Vigência": "25/07/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 355.0}, {"Programa/Projeto": "Hemeroteca Digital", "Instituição A": "Insituto Histórico e Geográfico de Santos", "Instrumento": "Termo Aditivo", "Vigência": "05/06/2026", "Status/Vigência": "Vencido", "Dias para fim da Vigência": -60.0}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Casa de Oswaldo Cruz/Fiocruz", "Instrumento": "Termo de Adesão", "Vigência": "11/11/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 464.0}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Diretoria do Patrimônio Histórico e Documentação da Marinha", "Instrumento": "Termo de Adesão", "Vigência": "06/10/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 428.0}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Museu da República", "Instrumento": "Termo de Adesão", "Vigência": "06/09/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 398.0}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Museu Histórico Nacional", "Instrumento": "Termo de Adesão", "Vigência": "16/11/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 469.0}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Arquivo Geral da Cidade do Rio de Janeiro", "Instrumento": "Termo de Adesão", "Vigência": "18/07/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 348.0}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Fundação Joaquim Nabuco", "Instrumento": "Termo de Adesão", "Vigência": "04/11/2029", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 1188.0}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Museu Aeroespacial", "Instrumento": "Termo de Adesão", "Vigência": "03/11/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 456.0}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Museu Paraense Emílio Goeldi", "Instrumento": "Termo de Adesão", "Vigência": "15/09/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 407.0}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Fundação Getúlio Vargas", "Instrumento": "Termo de Adesão", "Vigência": "30/12/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 513.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Instituto Musica Brasilis", "Instrumento": "Termo de Adesão", "Vigência": "10/03/2025", "Status/Vigência": "Vencido", "Dias para fim da Vigência": -512.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Grupo Associado de Estudos e Pesquisas sobre a História da Educação Matemática - GHEMAT-Brasil", "Instrumento": "Termo de Adesão", "Vigência": "10/03/2025", "Status/Vigência": "Vencido", "Dias para fim da Vigência": -512.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Museu Histórico Nacional", "Instrumento": "Termo de Adesão", "Vigência": "14/11/2025", "Status/Vigência": "Vencido", "Dias para fim da Vigência": -263.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Núcleo de Pesquisa Semiótica da Amazônia – NUPS/UFRR", "Instrumento": "Termo de Adesão", "Vigência": "20/08/2026", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 16.0}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Instituto Histórico e Geográfico Brasileiro", "Instrumento": "Termo de Adesão", "Vigência": "04/04/2029", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 974.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Arquivo Geral da Cidade do Rio de Janeiro", "Instrumento": "Termo de Adesão", "Vigência": "09/11/2025", "Status/Vigência": "Vencido", "Dias para fim da Vigência": -268.0}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Instituro Brasileiro de Geografia e Estatística", "Instrumento": "Termo de Adesão", "Vigência": "06/08/2029", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 1098.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Instituto Musica Brasilis", "Instrumento": "Termo Aditivo", "Vigência": "25/02/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 205.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Grupo Associado de Estudos e Pesquisas sobre a História da Educação Matemática - GHEMAT-Brasil", "Instrumento": "Termo Aditivo", "Vigência": "25/02/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 205.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Arquivo Geral da Cidade do Rio de Janeiro", "Instrumento": "Termo Aditivo", "Vigência": "31/10/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 453.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Museu Histórico Nacional", "Instrumento": "Termo Aditivo", "Vigência": "04/11/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 457.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Instituto do Patrimônio Histórico e Artístico Nacional", "Instrumento": "Termo de Adesão", "Vigência": "30/01/2028", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 544.0}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Instituto de Pesquisas e Estudos Afrobrasileiros -IPEAFRO-", "Instrumento": "Termo de Adesão", "Vigência": "24/11/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 477.0}, {"Programa/Projeto": "MEC livros", "Instituição A": "Fundação Biblioteca Nacional", "Instrumento": "Acordo de Cooperação Técnica", "Vigência": "01/06/2026", "Status/Vigência": "Vencido", "Dias para fim da Vigência": -64.0}], "assinaturas_ano_completo": {"2020": 1, "2021": 0, "2022": 9, "2023": 4, "2024": 4, "2025": 7, "2026": 1}, "processos": [{"id": 1, "programa": "Brasiliana Fotográfica", "instituicao": "Instituto Moreira Salles", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Concluído", "vigencia": "26/03/2027", "statusVigencia": "Vigente"}, {"id": 2, "programa": "Brasiliana Fotográfica", "instituicao": "Arquivo Nacional", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "25/07/2027", "statusVigencia": "Vigente"}, {"id": 3, "programa": "Hemeroteca Digital", "instituicao": "Insituto Histórico e Geográfico de Santos", "instrumento": "Termo Aditivo", "statusProcesso": "Concluído", "vigencia": "05/06/2026", "statusVigencia": "Vencido"}, {"id": 4, "programa": "Brasiliana Fotográfica", "instituicao": "Casa de Oswaldo Cruz/Fiocruz", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "11/11/2027", "statusVigencia": "Vigente"}, {"id": 5, "programa": "Brasiliana Fotográfica", "instituicao": "Diretoria do Patrimônio Histórico e Documentação da Marinha", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "06/10/2027", "statusVigencia": "Vigente"}, {"id": 6, "programa": "Brasiliana Fotográfica", "instituicao": "Museu da República", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "06/09/2027", "statusVigencia": "Vigente"}, {"id": 7, "programa": "Brasiliana Fotográfica", "instituicao": "Museu Histórico Nacional", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "16/11/2027", "statusVigencia": "Vigente"}, {"id": 8, "programa": "Brasiliana Fotográfica", "instituicao": "Arquivo Geral da Cidade do Rio de Janeiro", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "18/07/2027", "statusVigencia": "Vigente"}, {"id": 9, "programa": "Brasiliana Fotográfica", "instituicao": "Fundação Joaquim Nabuco", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "04/11/2029", "statusVigencia": "Vigente"}, {"id": 10, "programa": "Brasiliana Fotográfica", "instituicao": "Museu Aeroespacial", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "03/11/2027", "statusVigencia": "Vigente"}, {"id": 11, "programa": "Brasiliana Fotográfica", "instituicao": "Museu Paraense Emílio Goeldi", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "15/09/2027", "statusVigencia": "Vigente"}, {"id": 12, "programa": "Brasiliana Fotográfica", "instituicao": "Museu Antônio Parreiras", "instrumento": "Termo de Adesão", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 13, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Fundação de Arte de Niterói", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 14, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Instituto Histórico e Geográfico da Bahia", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 15, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Diretoria de Patrimônio Histórico e Cultural do Exército", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 16, "programa": "Brasiliana Fotográfica", "instituicao": "Fundação Getúlio Vargas", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "30/12/2027", "statusVigencia": "Vigente"}, {"id": 17, "programa": "Portal França Brasil", "instituicao": "Biblioteca Nacional da França", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 18, "programa": "Biblioteca Digital Luso-Brasileira", "instituicao": "Biblioteca Nacional de Portugal", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 19, "programa": "imagineRio", "instituicao": "William Marsh Rice University (EUA)", "instrumento": "Memorando de entendimento", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 20, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Instituto Musica Brasilis", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "10/03/2025", "statusVigencia": "Vencido"}, {"id": 21, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Grupo Associado de Estudos e Pesquisas sobre a História da Educação Matemática - GHEMAT-Brasil", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "10/03/2025", "statusVigencia": "Vencido"}, {"id": 22, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Biblioteca Pública de Santa Catarina", "instrumento": "Termo de Adesão", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 23, "programa": "Brasiliana Fotográfica", "instituicao": "Comando da Marinha", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 24, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Museu Histórico Nacional", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "14/11/2025", "statusVigencia": "Vencido"}, {"id": 25, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Fundação Casa de Rui Barbosa", "instrumento": "Termo de Adesão", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 26, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Núcleo de Pesquisa Semiótica da Amazônia – NUPS/UFRR", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "20/08/2026", "statusVigencia": "Vigente"}, {"id": 27, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Universidade Federal do Rio Grande do Norte", "instrumento": "Convênio de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 28, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Fundação Joaquim Nabuco", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 29, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Fundação Cultural de Blumenau", "instrumento": "Convênio de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 30, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Instituto Vladimir Herzog", "instrumento": "Convênio de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 31, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Universidade Federal da Bahia", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 32, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "OAB-RJ", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 33, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Cruz Vermelha Brasileira", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 34, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Instituto de Pesquisa Jardim Botânico/RJ", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 35, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Faculdades Católicas - PUC/RJ", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 36, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Associação Brasileira de Imprensa", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 37, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Biblioteca do Ministério da Fazenda", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 38, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Fundação Escola Nacional de Seguros -   FUNENSEG", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 39, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Diretoria do Patrimônio Histórico e Documentação da Marinha", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 40, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Fundação de Cultura e Turismo de Petrópolis", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 41, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Academia Brasileira de Ciências", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 42, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Museu Nacional - UFRJ", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": ""}, {"id": 43, "programa": "Brasiliana Fotográfica", "instituicao": "Instituto Histórico e Geográfico Brasileiro", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "04/04/2029", "statusVigencia": "Vigente"}, {"id": 44, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Arquivo Geral da Cidade do Rio de Janeiro", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "09/11/2025", "statusVigencia": "Vencido"}, {"id": 45, "programa": "Brasiliana Fotográfica", "instituicao": "Instituro Brasileiro de Geografia e Estatística", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "06/08/2029", "statusVigencia": "Vigente"}, {"id": 46, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Instituto Musica Brasilis", "instrumento": "Termo Aditivo", "statusProcesso": "Concluído", "vigencia": "25/02/2027", "statusVigencia": "Vigente"}, {"id": 47, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Grupo Associado de Estudos e Pesquisas sobre a História da Educação Matemática - GHEMAT-Brasil", "instrumento": "Termo Aditivo", "statusProcesso": "Concluído", "vigencia": "25/02/2027", "statusVigencia": "Vigente"}, {"id": 48, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Arquivo Geral da Cidade do Rio de Janeiro", "instrumento": "Termo Aditivo", "statusProcesso": "Concluído", "vigencia": "31/10/2027", "statusVigencia": "Vigente"}, {"id": 49, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Museu Histórico Nacional", "instrumento": "Termo Aditivo", "statusProcesso": "Concluído", "vigencia": "04/11/2027", "statusVigencia": "Vigente"}, {"id": 50, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Instituto do Patrimônio Histórico e Artístico Nacional", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "30/01/2028", "statusVigencia": "Vigente"}, {"id": 51, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Instituto de Pesquisas e Estudos Afrobrasileiros -IPEAFRO-", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "24/11/2027", "statusVigencia": "Vigente"}, {"id": 52, "programa": "MEC livros", "instituicao": "Fundação Biblioteca Nacional", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Concluído", "vigencia": "01/06/2026", "statusVigencia": "Vencido"}]};
+// Dados de exemplo/fallback usados quando a planilha ao vivo não responde.
+// Observação: os campos "Instituição B" e "renovados" aqui ficam vazios/zero
+// porque este snapshot foi gerado antes dessas colunas existirem na planilha.
+// Assim que a planilha ao vivo tiver essas colunas preenchidas, os dados reais aparecem.
+const DADOS_FALLBACK = {"total": 52, "concluidos": 26, "pendentes": 26, "vigentes": 20, "vencidos": 6, "programa": {"Rede da Memória Virtual Brasileira": 32, "Brasiliana Fotográfica": 15, "Hemeroteca Digital": 1, "Portal França Brasil": 1, "Biblioteca Digital Luso-Brasileira": 1, "imagineRio": 1, "MEC livros": 1}, "instrumento": {"Termo de Adesão": 22, "Acordo de Cooperação Técnica": 12, "Termo Aditivo": 5, "Convênio de Cooperação Técnica": 3, "Memorando de entendimento": 1}, "vencidas": [{"Programa/Projeto": "Hemeroteca Digital", "Instituição A": "Insituto Histórico e Geográfico de Santos", "Instrumento": "Termo Aditivo", "Vigência": "05/06/2026", "Dias para fim da Vigência": -60.0, "ID": 3, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Instituto Musica Brasilis", "Instrumento": "Termo de Adesão", "Vigência": "10/03/2025", "Dias para fim da Vigência": -512.0, "ID": 20, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Grupo Associado de Estudos e Pesquisas sobre a História da Educação Matemática - GHEMAT-Brasil", "Instrumento": "Termo de Adesão", "Vigência": "10/03/2025", "Dias para fim da Vigência": -512.0, "ID": 21, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Museu Histórico Nacional", "Instrumento": "Termo de Adesão", "Vigência": "14/11/2025", "Dias para fim da Vigência": -263.0, "ID": 24, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Arquivo Geral da Cidade do Rio de Janeiro", "Instrumento": "Termo de Adesão", "Vigência": "09/11/2025", "Dias para fim da Vigência": -268.0, "ID": 44, "Instituição B": ""}, {"Programa/Projeto": "MEC livros", "Instituição A": "Fundação Biblioteca Nacional", "Instrumento": "Acordo de Cooperação Técnica", "Vigência": "01/06/2026", "Dias para fim da Vigência": -64.0, "ID": 52, "Instituição B": ""}], "proximos": [{"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Núcleo de Pesquisa Semiótica da Amazônia – NUPS/UFRR ", "Instrumento": "Termo de Adesão", "Vigência": "20/08/2026", "Dias para fim da Vigência": 16.0}], "v_inicio_sim": 7, "v_alerta_sim": 7, "v_atraso_sim": 7, "instituicoes_unicas": 44, "dias_restantes_media": 484.4, "dias_restantes_min": 16.0, "dias_restantes_max": 1188.0, "timeline": [{"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Instituto Moreira Salles", "Instrumento": "Acordo de Cooperação Técnica", "Vigência": "26/03/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 234.0, "Instituição B": ""}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Arquivo Nacional", "Instrumento": "Termo de Adesão", "Vigência": "25/07/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 355.0, "Instituição B": ""}, {"Programa/Projeto": "Hemeroteca Digital", "Instituição A": "Insituto Histórico e Geográfico de Santos", "Instrumento": "Termo Aditivo", "Vigência": "05/06/2026", "Status/Vigência": "Vencido", "Dias para fim da Vigência": -60.0, "Instituição B": ""}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Casa de Oswaldo Cruz/Fiocruz", "Instrumento": "Termo de Adesão", "Vigência": "11/11/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 464.0, "Instituição B": ""}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Diretoria do Patrimônio Histórico e Documentação da Marinha", "Instrumento": "Termo de Adesão", "Vigência": "06/10/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 428.0, "Instituição B": ""}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Museu da República", "Instrumento": "Termo de Adesão", "Vigência": "06/09/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 398.0, "Instituição B": ""}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Museu Histórico Nacional", "Instrumento": "Termo de Adesão", "Vigência": "16/11/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 469.0, "Instituição B": ""}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Arquivo Geral da Cidade do Rio de Janeiro", "Instrumento": "Termo de Adesão", "Vigência": "18/07/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 348.0, "Instituição B": ""}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Fundação Joaquim Nabuco", "Instrumento": "Termo de Adesão", "Vigência": "04/11/2029", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 1188.0, "Instituição B": ""}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Museu Aeroespacial", "Instrumento": "Termo de Adesão", "Vigência": "03/11/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 456.0, "Instituição B": ""}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Museu Paraense Emílio Goeldi", "Instrumento": "Termo de Adesão", "Vigência": "15/09/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 407.0, "Instituição B": ""}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Fundação Getúlio Vargas", "Instrumento": "Termo de Adesão", "Vigência": "30/12/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 513.0, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Instituto Musica Brasilis", "Instrumento": "Termo de Adesão", "Vigência": "10/03/2025", "Status/Vigência": "Vencido", "Dias para fim da Vigência": -512.0, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Grupo Associado de Estudos e Pesquisas sobre a História da Educação Matemática - GHEMAT-Brasil", "Instrumento": "Termo de Adesão", "Vigência": "10/03/2025", "Status/Vigência": "Vencido", "Dias para fim da Vigência": -512.0, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Museu Histórico Nacional", "Instrumento": "Termo de Adesão", "Vigência": "14/11/2025", "Status/Vigência": "Vencido", "Dias para fim da Vigência": -263.0, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Núcleo de Pesquisa Semiótica da Amazônia – NUPS/UFRR", "Instrumento": "Termo de Adesão", "Vigência": "20/08/2026", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 16.0, "Instituição B": ""}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Instituto Histórico e Geográfico Brasileiro", "Instrumento": "Termo de Adesão", "Vigência": "04/04/2029", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 974.0, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Arquivo Geral da Cidade do Rio de Janeiro", "Instrumento": "Termo de Adesão", "Vigência": "09/11/2025", "Status/Vigência": "Vencido", "Dias para fim da Vigência": -268.0, "Instituição B": ""}, {"Programa/Projeto": "Brasiliana Fotográfica", "Instituição A": "Instituro Brasileiro de Geografia e Estatística", "Instrumento": "Termo de Adesão", "Vigência": "06/08/2029", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 1098.0, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Instituto Musica Brasilis", "Instrumento": "Termo Aditivo", "Vigência": "25/02/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 205.0, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Grupo Associado de Estudos e Pesquisas sobre a História da Educação Matemática - GHEMAT-Brasil", "Instrumento": "Termo Aditivo", "Vigência": "25/02/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 205.0, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Arquivo Geral da Cidade do Rio de Janeiro", "Instrumento": "Termo Aditivo", "Vigência": "31/10/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 453.0, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Museu Histórico Nacional", "Instrumento": "Termo Aditivo", "Vigência": "04/11/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 457.0, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Instituto do Patrimônio Histórico e Artístico Nacional", "Instrumento": "Termo de Adesão", "Vigência": "30/01/2028", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 544.0, "Instituição B": ""}, {"Programa/Projeto": "Rede da Memória Virtual Brasileira", "Instituição A": "Instituto de Pesquisas e Estudos Afrobrasileiros -IPEAFRO-", "Instrumento": "Termo de Adesão", "Vigência": "24/11/2027", "Status/Vigência": "Vigente", "Dias para fim da Vigência": 477.0, "Instituição B": ""}, {"Programa/Projeto": "MEC livros", "Instituição A": "Fundação Biblioteca Nacional", "Instrumento": "Acordo de Cooperação Técnica", "Vigência": "01/06/2026", "Status/Vigência": "Vencido", "Dias para fim da Vigência": -64.0, "Instituição B": ""}], "processos": [{"id": 1, "programa": "Brasiliana Fotográfica", "instituicao": "Instituto Moreira Salles", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Concluído", "vigencia": "26/03/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 2, "programa": "Brasiliana Fotográfica", "instituicao": "Arquivo Nacional", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "25/07/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 3, "programa": "Hemeroteca Digital", "instituicao": "Insituto Histórico e Geográfico de Santos", "instrumento": "Termo Aditivo", "statusProcesso": "Concluído", "vigencia": "05/06/2026", "statusVigencia": "Vencido", "instituicaoB": ""}, {"id": 4, "programa": "Brasiliana Fotográfica", "instituicao": "Casa de Oswaldo Cruz/Fiocruz", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "11/11/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 5, "programa": "Brasiliana Fotográfica", "instituicao": "Diretoria do Patrimônio Histórico e Documentação da Marinha", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "06/10/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 6, "programa": "Brasiliana Fotográfica", "instituicao": "Museu da República", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "06/09/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 7, "programa": "Brasiliana Fotográfica", "instituicao": "Museu Histórico Nacional", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "16/11/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 8, "programa": "Brasiliana Fotográfica", "instituicao": "Arquivo Geral da Cidade do Rio de Janeiro", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "18/07/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 9, "programa": "Brasiliana Fotográfica", "instituicao": "Fundação Joaquim Nabuco", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "04/11/2029", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 10, "programa": "Brasiliana Fotográfica", "instituicao": "Museu Aeroespacial", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "03/11/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 11, "programa": "Brasiliana Fotográfica", "instituicao": "Museu Paraense Emílio Goeldi", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "15/09/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 12, "programa": "Brasiliana Fotográfica", "instituicao": "Museu Antônio Parreiras", "instrumento": "Termo de Adesão", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 13, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Fundação de Arte de Niterói", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 14, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Instituto Histórico e Geográfico da Bahia", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 15, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Diretoria de Patrimônio Histórico e Cultural do Exército", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 16, "programa": "Brasiliana Fotográfica", "instituicao": "Fundação Getúlio Vargas", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "30/12/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 17, "programa": "Portal França Brasil", "instituicao": "Biblioteca Nacional da França", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 18, "programa": "Biblioteca Digital Luso-Brasileira", "instituicao": "Biblioteca Nacional de Portugal", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 19, "programa": "imagineRio", "instituicao": "William Marsh Rice University (EUA)", "instrumento": "Memorando de entendimento", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 20, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Instituto Musica Brasilis", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "10/03/2025", "statusVigencia": "Vencido", "instituicaoB": ""}, {"id": 21, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Grupo Associado de Estudos e Pesquisas sobre a História da Educação Matemática - GHEMAT-Brasil", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "10/03/2025", "statusVigencia": "Vencido", "instituicaoB": ""}, {"id": 22, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Biblioteca Pública de Santa Catarina", "instrumento": "Termo de Adesão", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 23, "programa": "Brasiliana Fotográfica", "instituicao": "Comando da Marinha", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 24, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Museu Histórico Nacional", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "14/11/2025", "statusVigencia": "Vencido", "instituicaoB": ""}, {"id": 25, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Fundação Casa de Rui Barbosa", "instrumento": "Termo de Adesão", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 26, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Núcleo de Pesquisa Semiótica da Amazônia – NUPS/UFRR", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "20/08/2026", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 27, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Universidade Federal do Rio Grande do Norte", "instrumento": "Convênio de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 28, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Fundação Joaquim Nabuco", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 29, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Fundação Cultural de Blumenau", "instrumento": "Convênio de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 30, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Instituto Vladimir Herzog", "instrumento": "Convênio de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 31, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Universidade Federal da Bahia", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 32, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "OAB-RJ", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 33, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Cruz Vermelha Brasileira", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 34, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Instituto de Pesquisa Jardim Botânico/RJ", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 35, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Faculdades Católicas - PUC/RJ", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 36, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Associação Brasileira de Imprensa", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 37, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Biblioteca do Ministério da Fazenda", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 38, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Fundação Escola Nacional de Seguros -   FUNENSEG", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 39, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Diretoria do Patrimônio Histórico e Documentação da Marinha", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 40, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Fundação de Cultura e Turismo de Petrópolis", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 41, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Academia Brasileira de Ciências", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 42, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Museu Nacional - UFRJ", "instrumento": "", "statusProcesso": "Pendente", "vigencia": "", "statusVigencia": "", "instituicaoB": ""}, {"id": 43, "programa": "Brasiliana Fotográfica", "instituicao": "Instituto Histórico e Geográfico Brasileiro", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "04/04/2029", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 44, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Arquivo Geral da Cidade do Rio de Janeiro", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "09/11/2025", "statusVigencia": "Vencido", "instituicaoB": ""}, {"id": 45, "programa": "Brasiliana Fotográfica", "instituicao": "Instituro Brasileiro de Geografia e Estatística", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "06/08/2029", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 46, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Instituto Musica Brasilis", "instrumento": "Termo Aditivo", "statusProcesso": "Concluído", "vigencia": "25/02/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 47, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Grupo Associado de Estudos e Pesquisas sobre a História da Educação Matemática - GHEMAT-Brasil", "instrumento": "Termo Aditivo", "statusProcesso": "Concluído", "vigencia": "25/02/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 48, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Arquivo Geral da Cidade do Rio de Janeiro", "instrumento": "Termo Aditivo", "statusProcesso": "Concluído", "vigencia": "31/10/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 49, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Museu Histórico Nacional", "instrumento": "Termo Aditivo", "statusProcesso": "Concluído", "vigencia": "04/11/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 50, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Instituto do Patrimônio Histórico e Artístico Nacional", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "30/01/2028", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 51, "programa": "Rede da Memória Virtual Brasileira", "instituicao": "Instituto de Pesquisas e Estudos Afrobrasileiros -IPEAFRO-", "instrumento": "Termo de Adesão", "statusProcesso": "Concluído", "vigencia": "24/11/2027", "statusVigencia": "Vigente", "instituicaoB": ""}, {"id": 52, "programa": "MEC livros", "instituicao": "Fundação Biblioteca Nacional", "instrumento": "Acordo de Cooperação Técnica", "statusProcesso": "Concluído", "vigencia": "01/06/2026", "statusVigencia": "Vencido", "instituicaoB": ""}], "processos_ano_completo": {"2020": 1, "2021": 0, "2022": 9, "2023": 4, "2024": 4, "2025": 7, "2026": 1}, "renovados": 0, "vigencias_a_vencer_ano": {"2026": 1, "2027": 15, "2028": 1, "2029": 3}};
 const SNAPSHOT_GERADO_EM = "11/08/2026";
 
 // ---------------------------------------------------------------------
@@ -612,8 +616,6 @@ function definirStatus(estado, texto, detalhe){
   const span = document.getElementById('statusTexto');
   dot.className = 'status-dot status-' + estado;
   span.textContent = texto;
-  // detalhe completo do erro fica disponível ao passar o mouse (title),
-  // sem poluir o texto curto do indicador
   if (detalhe) {
     dot.title = detalhe;
     span.title = detalhe;
@@ -623,41 +625,29 @@ function definirStatus(estado, texto, detalhe){
   }
 }
 
-// Traduz o erro técnico numa causa provável e curta, para não deixar o
-// indicador com um "Sem conexão" genérico que não ajuda a diagnosticar.
 function descreverErro(erro){
   const msg = (erro && erro.message) ? erro.message : String(erro || '');
-
-  // fetch falhou antes mesmo de completar (TypeError: Failed to fetch) —
-  // típico de CORS bloqueado, sem internet, ou arquivo aberto via file://
   if (erro instanceof TypeError || /Failed to fetch|NetworkError/i.test(msg)) {
     if (location.protocol === 'file:') {
       return 'arquivo aberto localmente (file://) — sirva por http(s) em vez de abrir direto';
     }
     return 'falha de rede/CORS ao contatar o Google Sheets';
   }
-
   if (/^HTTP /.test(msg)) {
     return msg + ' — verifique se a planilha existe e o ID/gid estão corretos';
   }
-
   if (/não parece ser dados do gviz/i.test(msg)) {
     return 'planilha não pública — compartilhe como "Qualquer pessoa com o link"';
   }
-
   if (/sem nenhuma linha de dado/i.test(msg)) {
     return 'a aba (gid) respondeu vazia — confira se o gid é o da aba certa';
   }
-
   return msg || 'erro desconhecido';
 }
 
 // ===========================================================================
 // BUSCA AO VIVO — Google Sheets via endpoint público "gviz"
 // ===========================================================================
-// Esse endpoint devolve os dados já tipados (datas como Date(ano,mês,dia),
-// números como número mesmo) em vez de texto formatado — evita o problema
-// de ambiguidade de formato de data que um CSV exportado teria.
 function urlGviz(){
   return `https://docs.google.com/spreadsheets/d/${CONFIG.planilhaId}/gviz/tq?tqx=out:json&gid=${CONFIG.gid}&t=${Date.now()}`;
 }
@@ -672,13 +662,12 @@ function parseGvizResponse(texto){
     const linha = {};
     colunas.forEach((nomeColuna, i) => {
       if (!nomeColuna) return;
-      linha[nomeColuna] = (r.c && r.c[i]) || null; // guarda a célula {v,f} inteira
+      linha[nomeColuna] = (r.c && r.c[i]) || null;
     });
     return linha;
   });
 }
 
-// --- leitura de células tipadas -------------------------------------------
 function celTexto(cel){
   if (!cel || cel.v == null) return '';
   return String(cel.v).trim();
@@ -704,16 +693,17 @@ function formatarDataBR(d){
 }
 
 // ---------------------------------------------------------------------
-// Recalcula todos os agregados do painel a partir das linhas da planilha —
-// mesma lógica usada para gerar o snapshot embutido, só que em JS e a
-// partir dos dados frescos, em vez de rodar uma vez em Python.
+// Recalcula todos os agregados do painel a partir das linhas da planilha.
+// Status/Vigência pode vir como "Vigente", "Vencido" ou "Renovado". Um
+// instrumento "Renovado" não entra na contagem/tabela de vencidos.
 // ---------------------------------------------------------------------
 function construirDados(linhas){
-  let concluidos = 0, pendentes = 0, vigentes = 0, vencidos = 0, vAlertaSim = 0;
+  let concluidos = 0, pendentes = 0, vigentes = 0, vencidos = 0, renovados = 0, vAlertaSim = 0;
   const instituicoesUnicas = new Set();
   const programaContagem = {};
   const instrumentoContagem = {};
-  const assinaturasPorAno = {};
+  const processosPorAno = {};
+  const vigenciasAVencerPorAno = {};
   const timeline = [];
   const vencidas = [];
   const diasRestantesVigentes = [];
@@ -723,7 +713,8 @@ function construirDados(linhas){
     const statusProcesso = celTexto(linha['Status/Processo']);
     const statusVigencia = celTexto(linha['Status/Vigência']);
     const programa = celLimpa(linha['Programa/Projeto']);
-    const instituicao = celLimpa(linha['Instituição A']);
+    const instituicaoA = celLimpa(linha['Instituição A']);
+    const instituicaoB = celLimpa(linha['Instituição B']);
     const instrumento = celLimpa(linha['Instrumento']);
     const id = celNumero(linha['ID']);
     const dataAssinatura = celData(linha['Data da Assinatura']);
@@ -734,55 +725,75 @@ function construirDados(linhas){
     else if (statusProcesso === 'Pendente') pendentes++;
 
     if (statusVigencia === 'Vigente') vigentes++;
+    else if (statusVigencia === 'Renovado') renovados++;
     else if (statusVigencia === 'Vencido') vencidos++;
 
     if (celTexto(linha['V-Alerta']) === 'Sim') vAlertaSim++;
 
-    if (instituicao) instituicoesUnicas.add(instituicao);
+    if (instituicaoA) instituicoesUnicas.add(instituicaoA);
     if (programa) programaContagem[programa] = (programaContagem[programa] || 0) + 1;
     if (instrumento) instrumentoContagem[instrumento] = (instrumentoContagem[instrumento] || 0) + 1;
 
     if (dataAssinatura) {
       const ano = dataAssinatura.getFullYear();
-      assinaturasPorAno[ano] = (assinaturasPorAno[ano] || 0) + 1;
+      processosPorAno[ano] = (processosPorAno[ano] || 0) + 1;
     }
 
     if (vigenciaData && diasFimVigencia != null) {
       const item = {
+        'ID': id != null ? id : '—',
         'Programa/Projeto': programa,
-        'Instituição A': instituicao,
+        'Instituição A': instituicaoA,
+        'Instituição B': instituicaoB,
         'Instrumento': instrumento,
         'Vigência': formatarDataBR(vigenciaData),
+        'Status/Vigência': statusVigencia,
         'Dias para fim da Vigência': diasFimVigencia
       };
       timeline.push(item);
+
       if (statusVigencia === 'Vencido') vencidas.push(item);
+
+      if (statusVigencia === 'Vigente' || statusVigencia === 'Renovado') {
+        const ano = vigenciaData.getFullYear();
+        vigenciasAVencerPorAno[ano] = (vigenciasAVencerPorAno[ano] || 0) + 1;
+      }
+
       if (statusVigencia === 'Vigente') diasRestantesVigentes.push(diasFimVigencia);
     }
 
     processos.push({
       id: id != null ? id : '—',
-      programa, instituicao, instrumento, statusProcesso, statusVigencia,
+      programa, instituicao: instituicaoA, instituicaoB, instrumento, statusProcesso, statusVigencia,
       vigencia: vigenciaData ? formatarDataBR(vigenciaData) : ''
     });
   });
 
-  const anos = Object.keys(assinaturasPorAno).map(Number);
+  const anos = Object.keys(processosPorAno).map(Number);
   const hoje = new Date().getFullYear();
   const anoMin = anos.length ? Math.min(...anos) : hoje;
   const anoMax = anos.length ? Math.max(...anos, hoje) : hoje;
-  const assinaturasAnoCompleto = {};
-  for (let a = anoMin; a <= anoMax; a++) assinaturasAnoCompleto[a] = assinaturasPorAno[a] || 0;
+  const processosAnoCompleto = {};
+  for (let a = anoMin; a <= anoMax; a++) processosAnoCompleto[a] = processosPorAno[a] || 0;
+
+  const anosVigencia = Object.keys(vigenciasAVencerPorAno).map(Number);
+  const vigenciasAVencerAnoCompleto = {};
+  if (anosVigencia.length) {
+    const vAnoMin = Math.min(...anosVigencia, hoje);
+    const vAnoMax = Math.max(...anosVigencia, hoje);
+    for (let a = vAnoMin; a <= vAnoMax; a++) vigenciasAVencerAnoCompleto[a] = vigenciasAVencerPorAno[a] || 0;
+  }
 
   const somaDias = diasRestantesVigentes.reduce((s, d) => s + d, 0);
 
   return {
     total: linhas.length,
-    concluidos, pendentes, vigentes, vencidos,
+    concluidos, pendentes, vigentes, vencidos, renovados,
     instituicoes_unicas: instituicoesUnicas.size,
     programa: programaContagem,
     instrumento: instrumentoContagem,
-    assinaturas_ano_completo: assinaturasAnoCompleto,
+    processos_ano_completo: processosAnoCompleto,
+    vigencias_a_vencer_ano: vigenciasAVencerAnoCompleto,
     v_alerta_sim: vAlertaSim,
     dias_restantes_media: diasRestantesVigentes.length ? somaDias / diasRestantesVigentes.length : 0,
     timeline, vencidas, processos
@@ -809,9 +820,7 @@ async function carregarDadosAoVivo(manual){
 }
 
 // ===========================================================================
-// RENDERIZAÇÃO — reconstrói todo o painel a partir de um objeto de dados.
-// Chamada tanto no carregamento (com o snapshot, pra pintar a tela na hora)
-// quanto sempre que a busca ao vivo termina (com sucesso ou não).
+// RENDERIZAÇÃO — gráficos, timeline e rankings
 // ===========================================================================
 let GRAFICOS = {};
 function destruirGraficos(){
@@ -820,7 +829,9 @@ function destruirGraficos(){
 }
 
 function donut(id, valores, cores){
-  GRAFICOS[id] = new Chart(document.getElementById(id), {
+  const el = document.getElementById(id);
+  if (!el) return;
+  GRAFICOS[id] = new Chart(el, {
     type: 'doughnut',
     data: { datasets: [{ data: valores, backgroundColor: cores, borderWidth: 0, spacing: 2 }] },
     options: {
@@ -832,20 +843,9 @@ function donut(id, valores, cores){
   });
 }
 
-function sparkline(id, valores, cor){
-  GRAFICOS[id] = new Chart(document.getElementById(id), {
-    type: 'line',
-    data: { labels: valores.map((_, i) => i), datasets: [{ data: valores, borderColor: cor, borderWidth: 2, tension: .4, pointRadius: 0, fill: true, backgroundColor: cor + '22' }] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      scales: { x: { display: false }, y: { display: false } },
-      plugins: { legend: { display: false }, tooltip: { enabled: false } }
-    }
-  });
-}
-
 function montarRanking(elId, dadosObj, corA, corB){
   const el = document.getElementById(elId);
+  if (!el) return;
   const entradas = Object.entries(dadosObj).sort((a, b) => b[1] - a[1]);
   if (entradas.length === 0) { el.innerHTML = '<p class="sem-termos">Sem dados.</p>'; return; }
   const max = entradas[0][1];
@@ -856,74 +856,40 @@ function montarRanking(elId, dadosObj, corA, corB){
     </div>`).join('');
 }
 
-function badgeProcesso(status){
-  if (status === 'Concluído') return '<span class="badge concluido">Concluído</span>';
-  if (status === 'Pendente') return '<span class="badge pendente">Pendente</span>';
-  return '<span class="badge muted">' + (status || '—') + '</span>';
-}
-function badgeVigencia(status){
-  if (status === 'Vigente') return '<span class="badge vigente">Vigente</span>';
-  if (status === 'Vencido') return '<span class="badge vencido">Vencido</span>';
-  return '<span class="muted">—</span>';
-}
-
-let TODOS_PROCESSOS = [];
-
-function renderTabelaProcessos(filtro){
-  const tbody = document.getElementById('tbodyProcessos');
-  const termo = (filtro || '').trim().toLowerCase();
-  const linhas = TODOS_PROCESSOS.filter(p => !termo ||
-    (p.programa + ' ' + p.instituicao + ' ' + p.instrumento).toLowerCase().includes(termo)
-  );
-
-  document.getElementById('contadorTabela').textContent = linhas.length + ' de ' + TODOS_PROCESSOS.length + ' processos';
-
-  if (linhas.length === 0) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Nada encontrado para essa busca.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = linhas.map(p => `
-    <tr>
-      <td class="muted">${p.id}</td>
-      <td>${p.programa}</td>
-      <td>${p.instituicao}</td>
-      <td class="muted">${p.instrumento || '—'}</td>
-      <td>${badgeProcesso(p.statusProcesso)}</td>
-      <td class="muted">${p.vigencia || '—'}</td>
-      <td>${badgeVigencia(p.statusVigencia)}</td>
-    </tr>`).join('');
+function barChartAno(id, labels, valores, cor, corHover){
+  const el = document.getElementById(id);
+  if (!el) return;
+  GRAFICOS[id] = new Chart(el, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: valores,
+        backgroundColor: cor,
+        hoverBackgroundColor: corHover,
+        borderRadius: 6,
+        maxBarThickness: 34
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#9aa3c2' } },
+        y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#9aa3c2', precision: 0 } }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
 }
 
-function renderizarPainel(DADOS){
-  destruirGraficos();
-
-  // KPIs -------------------------------------------------------------
-  document.getElementById('kpiTotal').textContent = fmt(DADOS.total);
-  document.getElementById('kpiTotalSub').textContent = DADOS.instituicoes_unicas + ' instituições parceiras';
-
-  document.getElementById('kpiPendentes').textContent = fmt(DADOS.pendentes);
-  document.getElementById('kpiPendentesSub').textContent = pct(DADOS.pendentes, DADOS.total) + '% do total';
-
-  document.getElementById('kpiConcluidos').textContent = fmt(DADOS.concluidos);
-  document.getElementById('kpiConcluidosSub').textContent = pct(DADOS.concluidos, DADOS.total) + '% do total';
-
-  document.getElementById('kpiVigentes').textContent = fmt(DADOS.vigentes);
-  document.getElementById('kpiVigentesSub').textContent = pct(DADOS.vigentes, DADOS.vigentes + DADOS.vencidos) + '% dos avaliados';
-
-  document.getElementById('kpiVencidos').textContent = fmt(DADOS.vencidos);
-  document.getElementById('kpiVencidosSub').textContent = 'precisam de ação';
-
-  document.getElementById('navBadgeVencidos').textContent = DADOS.vencidos;
-
-  // Donuts -------------------------------------------------------------
+function renderizarGraficosComuns(DADOS){
   donut('donutProcessos', [DADOS.concluidos, DADOS.pendentes], ['#22d3ee', '#c084fc']);
   document.getElementById('donutProcessosN').textContent = pct(DADOS.concluidos, DADOS.total) + '%';
 
-  donut('donutVigencias', [DADOS.vigentes, DADOS.vencidos], ['#34d399', '#fb7185']);
-  document.getElementById('donutVigenciasN').textContent = pct(DADOS.vigentes, DADOS.vigentes + DADOS.vencidos) + '%';
+  donut('donutVigencias', [DADOS.vigentes, DADOS.vencidos, DADOS.renovados], ['#34d399', '#fb7185', '#818cf8']);
+  document.getElementById('donutVigenciasN').textContent = pct(DADOS.vigentes, DADOS.vigentes + DADOS.vencidos + DADOS.renovados) + '%';
 
-  const totalComVigencia = DADOS.vigentes + DADOS.vencidos;
+  const totalComVigencia = DADOS.vigentes + DADOS.vencidos + DADOS.renovados;
   donut('donutAlertas', [DADOS.v_alerta_sim, Math.max(totalComVigencia - DADOS.v_alerta_sim, 0)], ['#fb7185', 'rgba(255,255,255,.10)']);
   document.getElementById('donutAlertasN').textContent = DADOS.v_alerta_sim + '/' + totalComVigencia;
 
@@ -948,7 +914,7 @@ function renderizarPainel(DADOS){
     dot.style.background = cor;
 
     const diasTxt = d < 0 ? `venceu há ${Math.abs(d)} dia(s)` : (d === 0 ? 'vence hoje' : `${d} dia(s) restantes`);
-    dot.innerHTML = `<div class="tt"><b>${item['Instituição A']}</b>${item['Programa/Projeto']} · ${item['Instrumento']}<br>${diasTxt} (${item['Vigência']})</div>`;
+    dot.innerHTML = `<div class="tt"><span class="tt-id">ID ${item['ID']}</span><b>${item['Instituição A']}</b>${item['Programa/Projeto']} · ${item['Instrumento']}<br>${diasTxt} (${item['Vigência']})</div>`;
     container.appendChild(dot);
   });
 
@@ -959,49 +925,93 @@ function renderizarPainel(DADOS){
   montarRanking('rankInstrumento', DADOS.instrumento, '#22d3ee', '#6366f1');
   montarRanking('rankPrograma', DADOS.programa, '#c084fc', '#f472b6');
 
-  // Trend cards + sparklines ----------------------------------------------
-  document.getElementById('trendInstituicoes').textContent = fmt(DADOS.instituicoes_unicas);
-  document.getElementById('trendDias').textContent = fmt(Math.round(DADOS.dias_restantes_media));
+  // Gráficos por ano — processos abertos e vigências a vencer -------------
+  const anosProcessos = Object.keys(DADOS.processos_ano_completo).sort();
+  barChartAno('chartProcessosAno', anosProcessos, anosProcessos.map(a => DADOS.processos_ano_completo[a]), '#6366f1', '#818cf8');
 
-  const anosOrdenados = Object.keys(DADOS.assinaturas_ano_completo).sort();
-  sparkline('sparkAssinaturas', anosOrdenados.map(a => DADOS.assinaturas_ano_completo[a]), '#22d3ee');
+  const anosVigenciaVencer = Object.keys(DADOS.vigencias_a_vencer_ano).sort();
+  barChartAno('chartVigenciasAno', anosVigenciaVencer, anosVigenciaVencer.map(a => DADOS.vigencias_a_vencer_ano[a]), '#c084fc', '#f472b6');
+}
 
-  const distDias = DADOS.timeline.map(t => t['Dias para fim da Vigência']).sort((a, b) => a - b);
-  sparkline('sparkVigencia', distDias.length ? distDias : [0], '#c084fc');
+function badgeProcesso(status){
+  if (status === 'Concluído') return '<span class="badge concluido">Concluído</span>';
+  if (status === 'Pendente') return '<span class="badge pendente">Pendente</span>';
+  return '<span class="badge muted">' + (status || '—') + '</span>';
+}
+function badgeVigencia(status){
+  if (status === 'Vigente') return '<span class="badge vigente">Vigente</span>';
+  if (status === 'Vencido') return '<span class="badge vencido">Vencido</span>';
+  if (status === 'Renovado') return '<span class="badge renovado">Renovado</span>';
+  return '<span class="muted">—</span>';
+}
 
-  // Gráfico principal — assinaturas por ano --------------------------------
-  GRAFICOS.chartAssinaturas = new Chart(document.getElementById('chartAssinaturas'), {
-    type: 'bar',
-    data: {
-      labels: anosOrdenados,
-      datasets: [{
-        data: anosOrdenados.map(a => DADOS.assinaturas_ano_completo[a]),
-        backgroundColor: '#6366f1',
-        hoverBackgroundColor: '#818cf8',
-        borderRadius: 6,
-        maxBarThickness: 34
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      scales: {
-        x: { grid: { display: false }, ticks: { color: '#9aa3c2' } },
-        y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { color: '#9aa3c2', precision: 0 } }
-      },
-      plugins: { legend: { display: false } }
-    }
-  });
+let TODOS_PROCESSOS = [];
+
+function renderTabelaProcessos(filtro){
+  const tbody = document.getElementById('tbodyProcessos');
+  const termo = (filtro || '').trim().toLowerCase();
+  const linhas = TODOS_PROCESSOS.filter(p => !termo ||
+    (p.programa + ' ' + p.instituicao + ' ' + p.instituicaoB + ' ' + p.instrumento).toLowerCase().includes(termo)
+  );
+
+  document.getElementById('contadorTabela').textContent = linhas.length + ' de ' + TODOS_PROCESSOS.length + ' processos';
+
+  if (linhas.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8">Nada encontrado para essa busca.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = linhas.map(p => `
+    <tr>
+      <td class="muted">${p.id}</td>
+      <td>${p.programa}</td>
+      <td>${p.instituicao}</td>
+      <td>${p.instituicaoB || '—'}</td>
+      <td class="muted">${p.instrumento || '—'}</td>
+      <td>${badgeProcesso(p.statusProcesso)}</td>
+      <td class="muted">${p.vigencia || '—'}</td>
+      <td>${badgeVigencia(p.statusVigencia)}</td>
+    </tr>`).join('');
+}
+
+function renderizarPainel(DADOS){
+  destruirGraficos();
+
+  // KPIs -------------------------------------------------------------
+  document.getElementById('kpiTotal').textContent = fmt(DADOS.total);
+  document.getElementById('kpiTotalSub').textContent = DADOS.instituicoes_unicas + ' instituições parceiras';
+
+  document.getElementById('kpiPendentes').textContent = fmt(DADOS.pendentes);
+  document.getElementById('kpiPendentesSub').textContent = pct(DADOS.pendentes, DADOS.total) + '% do total';
+
+  document.getElementById('kpiConcluidos').textContent = fmt(DADOS.concluidos);
+  document.getElementById('kpiConcluidosSub').textContent = pct(DADOS.concluidos, DADOS.total) + '% do total';
+
+  document.getElementById('kpiVigentes').textContent = fmt(DADOS.vigentes);
+  document.getElementById('kpiVigentesSub').textContent = pct(DADOS.vigentes, DADOS.vigentes + DADOS.vencidos + DADOS.renovados) + '% dos avaliados';
+
+  document.getElementById('kpiVencidos').textContent = fmt(DADOS.vencidos);
+  document.getElementById('kpiVencidosSub').textContent = 'precisam de ação';
+
+  document.getElementById('kpiRenovados').textContent = fmt(DADOS.renovados);
+  document.getElementById('kpiRenovadosSub').textContent = pct(DADOS.renovados, DADOS.vigentes + DADOS.vencidos + DADOS.renovados) + '% dos avaliados';
+
+  document.getElementById('navBadgeVencidos').textContent = DADOS.vencidos;
+
+  // Gráficos, timeline e rankings ------------------------------------------
+  renderizarGraficosComuns(DADOS);
 
   // Tabela: vigências vencidas --------------------------------------------
   const tbodyVencidas = document.getElementById('tbodyVencidas');
   if (DADOS.vencidas.length === 0) {
-    tbodyVencidas.innerHTML = '<tr class="empty-row"><td colspan="5">Nenhuma vigência vencida no momento.</td></tr>';
+    tbodyVencidas.innerHTML = '<tr class="empty-row"><td colspan="6">Nenhuma vigência vencida no momento.</td></tr>';
   } else {
     tbodyVencidas.innerHTML = DADOS.vencidas
       .slice()
       .sort((a, b) => a['Dias para fim da Vigência'] - b['Dias para fim da Vigência'])
       .map(v => `
       <tr>
+        <td class="muted">${v['ID']}</td>
         <td>${v['Programa/Projeto']}</td>
         <td>${v['Instituição A']}</td>
         <td class="muted">${v['Instrumento'] || '—'}</td>
